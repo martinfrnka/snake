@@ -102,8 +102,8 @@ white=(255,255,255)
 black=(0,0,0)
 blue = (0,0,255)
 red = (255,0,0)
-grid_w = 15
-grid_h = 15
+grid_w = 25
+grid_h = 25
 grid_size = 20
 
 dis_w = (grid_w + 1) * grid_size
