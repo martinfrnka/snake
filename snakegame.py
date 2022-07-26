@@ -48,7 +48,7 @@ class Snake():
     def testFood(self, food):
         if self.posx==food.posx and self.posy==food.posy:
             self.score +=1
-            self.speed += 0
+            self.speed += 1
             self.length += 1
             self.body.append((-1,-1))
             food.isEdible = False
