@@ -24,5 +24,8 @@
   <ItemGroup>
     <Folder Include="resources\" />
   </ItemGroup>
+  <ItemGroup>
+    <Content Include="resources\food1.png" />
+  </ItemGroup>
   <Import Project="$(MSBuildExtensionsPath32)\Microsoft\VisualStudio\v$(VisualStudioVersion)\Python Tools\Microsoft.PythonTools.targets" />
 </Project>

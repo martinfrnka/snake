@@ -63,20 +63,21 @@ class Snake():
         
 
     def draw(self, display, color):
-        message("%s%s" % ("Score:  ", snake.score), blue, (10,10))
-        message("%s%s" % ("Speed:  ", snake.speed), blue, (10,25))
-        message("%s%s" % ("Length: ", snake.score), blue, (10,40))
+        message("%s%s" % ("Score:  ", self.score), blue, (10,10))
+        message("%s%s" % ("Speed:  ", self.speed), blue, (10,25))
+        message("%s%s" % ("Length: ", self.length), blue, (10,40))
         for bodypart in self.body:
             pygame.draw.rect(display, color,(bodypart[0]*self.size, bodypart[1]*self.size, self.size, self.size))
 
 class Food():
-    def __init__(self,grid_width,grid_height, size):
+    def __init__(self,grid_width,grid_height, size, food_image):
         self.dis_w = grid_width
         self.dis_h = grid_height
         self.posx = -1
         self.posy = -1
         self.size = size
         self.isEdible = False
+        self.food_img = pygame.transform.scale(food_image, (size, size))
 
     def placeFood(self):
         if not self.isEdible:
@@ -87,8 +88,12 @@ class Food():
     def getObject(self):
         return [self.posx*self.size, self.posy*self.size, self.size, self.size]
     
+    def getPosition(self):
+        return (self.posx*self.size, self.posy*self.size)
+
     def draw(self, display, color):
-        pygame.draw.rect(display, color,self.getObject())
+        #pygame.draw.rect(display, color,self.getObject())
+        display.blit(self.food_img, self.getPosition())
 
 
 pygame.init()
@@ -99,15 +104,16 @@ blue = (0,0,255)
 red = (255,0,0)
 grid_w = 15
 grid_h = 15
-grid_size = 8
+grid_size = 20
+
 dis_w = (grid_w + 1) * grid_size
 dis_h = (grid_h + 1) * grid_size
 dis=pygame.display.set_mode((dis_w,dis_h))
 pygame.display.set_caption('Snake game by Martin')
 
-
+foodimg = pygame.image.load(r'resources/food1.png')
 snake = Snake(grid_w, grid_h, grid_size)
-food = Food(grid_w, grid_h, grid_size)
+food = Food(grid_w, grid_h, grid_size, foodimg)
 
 clock = pygame.time.Clock()
 
