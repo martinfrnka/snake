@@ -1,0 +1,6 @@
+class Snake(object):
+    pass
+
+
+
+
