@@ -4,7 +4,7 @@ import pygame as pygame
 import random
 
 class Snake():
-    def __init__(self,grid_width,grid_height, grid_size):
+    def __init__(self,grid_width,grid_height, grid_size, speed, headimg, bodyimg, bodyimg2, tailimg):
         self.grid_w = grid_width
         self.grid_h = grid_height
         self.posx = self.grid_w//2
@@ -15,7 +15,11 @@ class Snake():
         self.dx = 0
         self.dy = 0
         self.size = grid_size
-        self.speed = 10
+        self.speed = speed
+        self.headimg = pygame.transform.scale(headimg, (grid_size, grid_size))
+        self.bodyimg = pygame.transform.scale(bodyimg, (grid_size, grid_size))
+        self.bodyimg2 = pygame.transform.scale(bodyimg2, (grid_size, grid_size))
+        self.tailimg = pygame.transform.scale(tailimg, (grid_size, grid_size))
         
         self.score = 0
 
@@ -28,7 +32,7 @@ class Snake():
         self.body = []
         self.body.append((self.posx, self.posy))
         self.length = 1
-        self.speed = 10
+        self.speed = 4
         self.dx = 0
         self.dy = 0
 
@@ -61,13 +65,69 @@ class Snake():
         self.body[0] = (self.posx, self.posy)
         return
         
+    def getPosition(self):
+        return (self.posx*self.size, self.posy*self.size)
 
     def draw(self, display, color):
         message("%s%s" % ("Score:  ", self.score), blue, (10,10))
         message("%s%s" % ("Speed:  ", self.speed), blue, (10,25))
         message("%s%s" % ("Length: ", self.length), blue, (10,40))
-        for bodypart in self.body:
-            pygame.draw.rect(display, color,(bodypart[0]*self.size, bodypart[1]*self.size, self.size, self.size))
+        for i in range(0,len(self.body)):
+            rot = 0
+            if i == 0: #head
+                img = self.headimg
+                if self.dy == 1:
+                    rot = 180
+                elif self.dy == -1:
+                    rot = 0
+                elif self.dx == 1:
+                    rot = 270
+                else:
+                    rot = 90
+            elif i == len(self.body)-1: #tail
+                img = self.tailimg
+                if (self.body[i-1][0] < self.body[i][0]):
+                    rot = 90
+                elif (self.body[i-1][0] > self.body[i][0]): 
+                    rot = 270
+                elif (self.body[i-1][1] < self.body[i][1]):
+                    rot = 0
+                else: 
+                    rot = 180
+            else: #body
+                if ((self.body[i-1][0] == self.body[i+1][0]) or (self.body[i-1][1] == self.body[i+1][1])): #body straight
+                    img = self.bodyimg
+                    if (self.body[i-1][0] == self.body[i+1][0]): #horizontal
+                        rot = 0
+                    else:
+                        rot = 90
+
+                    
+                else: # body turn
+                    img = self.bodyimg2
+                    if ((self.body[i-1][0] > self.body[i+1][0]) and (self.body[i-1][1] > self.body[i+1][1])):
+                        if ((self.body[i-1][0] > self.body[i][0])):
+                            rot = 0
+                        else:
+                            rot = 180
+                    elif ((self.body[i-1][0] > self.body[i+1][0]) and (self.body[i-1][1] < self.body[i+1][1])):
+                        if ((self.body[i-1][0] > self.body[i][0])):
+                            rot = 270
+                        else:
+                            rot = 90
+                    elif ((self.body[i-1][0] < self.body[i+1][0]) and (self.body[i-1][1] > self.body[i+1][1])):
+                        if ((self.body[i-1][0] < self.body[i][0])):
+                            rot = 90
+                        else:
+                            rot =270
+                    else:
+                        if ((self.body[i-1][0] < self.body[i][0])):
+                            rot = 180
+                        else:
+                            rot =0
+
+            #pygame.draw.rect(display, color,(bodypart[0]*self.size, bodypart[1]*self.size, self.size, self.size))
+            display.blit(pygame.transform.rotate(img, rot), (self.body[i][0]*self.size, self.body[i][1]*self.size))
 
 class Food():
     def __init__(self,grid_width,grid_height, size, food_image):
@@ -102,17 +162,21 @@ white=(255,255,255)
 black=(0,0,0)
 blue = (0,0,255)
 red = (255,0,0)
-grid_w = 25
-grid_h = 25
-grid_size = 20
-
+grid_w = 20
+grid_h = 20
+grid_size = 30
+snake_speed = 5
 dis_w = (grid_w + 1) * grid_size
 dis_h = (grid_h + 1) * grid_size
 dis=pygame.display.set_mode((dis_w,dis_h))
 pygame.display.set_caption('Snake game by Martin')
 
 foodimg = pygame.image.load(r'resources/food1.png')
-snake = Snake(grid_w, grid_h, grid_size)
+headimg = pygame.image.load(r'resources/head1.png')
+bodyimg = pygame.image.load(r'resources/body1.png')
+bodyimg2 = pygame.image.load(r'resources/body2.png')
+tailimg = pygame.image.load(r'resources/tail1.png')
+snake = Snake(grid_w, grid_h, grid_size, snake_speed, headimg, bodyimg, bodyimg2, tailimg)
 food = Food(grid_w, grid_h, grid_size, foodimg)
 
 clock = pygame.time.Clock()
