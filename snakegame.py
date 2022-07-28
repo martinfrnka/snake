@@ -15,13 +15,15 @@ class Snake():
         self.dx = 0
         self.dy = 0
         self.size = grid_size
-        self.speed = speed
+        self.default_speed = speed
+        self.speed = self.default_speed
         self.headimg = pygame.transform.scale(headimg, (grid_size, grid_size))
         self.bodyimg = pygame.transform.scale(bodyimg, (grid_size, grid_size))
         self.bodyimg2 = pygame.transform.scale(bodyimg2, (grid_size, grid_size))
         self.tailimg = pygame.transform.scale(tailimg, (grid_size, grid_size))
         
         self.score = 0
+        self.lives = 3
 
     def getObject(self):
         return [self.posx * self.size, self.posy* self.size, self.size, self.size]
@@ -32,19 +34,32 @@ class Snake():
         self.body = []
         self.body.append((self.posx, self.posy))
         self.length = 1
-        self.speed = 4
+        self.speed = self.default_speed
+
         self.dx = 0
         self.dy = 0
+        if (self.isDead()):
+            self.lives = 3
+            self.score = 0
+
 
     def crashed(self):
         if len(self.body)>=1:
             for i in range(1,len(self.body)):
                 if self.body[0] == self.body[i]:
+                    self.lives -= 1        
                     return True
         if (self.posx > self.grid_w
             or self.posx < 0
             or self.posy > self.grid_h
             or self.posy < 0):
+            self.lives -= 1        
+            return True
+        else:
+            return False
+    
+    def isDead(self):
+        if self.lives <0:
             return True
         else:
             return False
@@ -72,6 +87,7 @@ class Snake():
         message("%s%s" % ("Score:  ", self.score), blue, (10,10))
         message("%s%s" % ("Speed:  ", self.speed), blue, (10,25))
         message("%s%s" % ("Length: ", self.length), blue, (10,40))
+        message("%s%s" % ("Lives: ", self.lives), blue, (10,55))
         for i in range(0,len(self.body)):
             rot = 0
             if i == 0: #head
@@ -164,7 +180,7 @@ blue = (0,0,255)
 red = (255,0,0)
 grid_w = 20
 grid_h = 20
-grid_size = 30
+grid_size = 26
 snake_speed = 5
 dis_w = (grid_w + 1) * grid_size
 dis_h = (grid_h + 1) * grid_size
@@ -188,11 +204,33 @@ def message(msg, color, pos):
     dis.blit(mesg, pos)
 
 
-def menu_loop():
-    message("You lost!", red, (dis_w/2, dis_h/2))
+def you_died():
+    message("You died!", red, (dis_w/2, dis_h/2))
     pygame.display.update()
-    snake.reset();
+    snake.reset()
     time.sleep(2)
+
+def game_over():
+    message("Game over!", red, (dis_w/4, dis_h/2-15))
+    message("Press a key to restart, ESC to quit", red, (dis_w/4, dis_h/2))
+    message("ESC to quit", red, (dis_w/4, dis_h/2+15))
+    pygame.display.update()
+    deadloop = True
+    while deadloop:
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                pygame.quit()
+                quit()
+            if event.type == pygame.KEYDOWN:
+                if event.key == pygame.K_ESCAPE:
+                    pygame.quit()
+                    quit()
+                else:
+                   deadloop = False
+                   snake.reset();
+
+ 
+
 
 
 def game_loop():
@@ -220,9 +258,12 @@ def game_loop():
 
         food.placeFood()
         snake.testFood(food)
-        snake.update()
         if snake.crashed():
-            menu_loop()
+            if snake.isDead():
+                game_over()
+            else:
+                you_died()
+        snake.update()
 
         dis.fill(white)
 
